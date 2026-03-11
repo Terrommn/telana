@@ -3,12 +3,12 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: "AIzaSyCgUEG7h2k78J25x39t1L3Ql2mD_r0jo6I",
+  authDomain: "telana-builder.firebaseapp.com",
+  projectId: "telana-builder",
+  storageBucket: "telana-builder.firebasestorage.app",
+  messagingSenderId: "1003486255742",
+  appId: "1:1003486255742:web:be2636f0f96cb7e821562f"
 };
 
 if (!firebaseConfig.apiKey) {
