@@ -38,6 +38,7 @@ export default function ClientBriefForm() {
   const [files, setFiles] = useState<FileList | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submittedData, setSubmittedData] = useState<any>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0); // 1 for next, -1 for prev
 
@@ -130,6 +131,7 @@ export default function ClientBriefForm() {
         createdAt: serverTimestamp(),
       });
 
+      setSubmittedData({ ...data, exampleImageUrls: imageUrls });
       setSubmitSuccess(true);
     } catch (error) {
       console.error("Error submitting form: ", error);
@@ -195,20 +197,129 @@ export default function ClientBriefForm() {
     { id: "elegant", label: "Elegante", icon: Crown },
   ];
 
-  if (submitSuccess) {
+  if (submitSuccess && submittedData) {
+    const getStyleLabel = (id: string) => designStyles.find(s => s.id === id)?.label || id;
+    const getVibeLabel = (id: string) => designVibes.find(v => v.id === id)?.label || id;
+
     return (
       <div className="relative flex items-center justify-center min-h-screen p-4 overflow-hidden text-white font-sans">
         <BackgroundOrbs />
-        <Card className="w-full max-w-lg text-center bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
-          <CardHeader>
-            <CardTitle className="text-3xl text-green-400">¡Recibido!</CardTitle>
-            <CardDescription className="text-gray-200 text-lg">
-              Comenzaremos a trabajar en tu magia pronto.
+        <Card className="w-full max-w-3xl bg-black/60 backdrop-blur-2xl border-white/20 shadow-2xl max-h-[90vh] flex flex-col">
+          <CardHeader className="text-center border-b border-white/10 pb-6 shrink-0">
+            <div className="mx-auto bg-green-500/20 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+              <Check className="w-8 h-8 text-green-400" />
+            </div>
+            <CardTitle className="text-3xl text-white">¡Brief Recibido!</CardTitle>
+            <CardDescription className="text-gray-300 text-lg mt-2">
+              Aquí tienes el resumen de la información enviada.
             </CardDescription>
           </CardHeader>
-          <CardFooter className="justify-center">
-            <Button onClick={() => window.location.reload()} variant="secondary" className="bg-white text-black hover:bg-gray-200">
-              Nuevo Brief
+          
+          <CardContent className="pt-8 overflow-y-auto custom-scrollbar grow">
+            <div className="space-y-8">
+              {/* Info Principal */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-1">
+                  <h3 className="text-xs font-medium text-blue-400 uppercase tracking-wider">Producto / Servicio</h3>
+                  <p className="text-xl font-semibold text-white">{submittedData.productName}</p>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-xs font-medium text-blue-400 uppercase tracking-wider">Email de Contacto</h3>
+                  <p className="text-xl font-semibold text-white">{submittedData.contactEmail}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-xs font-medium text-blue-400 uppercase tracking-wider">Descripción</h3>
+                <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                  <p className="text-gray-200 leading-relaxed whitespace-pre-wrap">{submittedData.productDescription}</p>
+                </div>
+              </div>
+
+              {/* Estilo y Vibra */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-4">
+                  <div className="p-2 bg-blue-500/20 rounded-lg">
+                    <Layout className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs text-white/50 uppercase">Estilo</h3>
+                    <p className="font-semibold text-lg">{getStyleLabel(submittedData.designStyle)}</p>
+                  </div>
+                </div>
+                <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-4">
+                  <div className="p-2 bg-purple-500/20 rounded-lg">
+                    <Rocket className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs text-white/50 uppercase">Vibra</h3>
+                    <p className="font-semibold text-lg">{getVibeLabel(submittedData.designVibe)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Colores */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-medium text-blue-400 uppercase tracking-wider">Paleta de Colores</h3>
+                <div className="flex flex-wrap gap-3">
+                  {submittedData.colors.map((color: any, idx: number) => (
+                    <div key={idx} className="flex flex-col items-center gap-2">
+                      <div 
+                        className="w-16 h-16 rounded-2xl shadow-lg border-2 border-white/10"
+                        style={{ backgroundColor: color.value }}
+                      />
+                      <span className="text-xs font-mono text-white/50">{color.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Secciones */}
+              {submittedData.sections && submittedData.sections.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-xs font-medium text-blue-400 uppercase tracking-wider">Estructura Propuesta</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {submittedData.sections.map((section: any, idx: number) => (
+                      <span key={idx} className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-sm">
+                        {section.title}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+               {/* Archivos */}
+               {files && files.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-xs font-medium text-blue-400 uppercase tracking-wider">Archivos Adjuntos</h3>
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/10 space-y-2">
+                    {Array.from(files).map((file, i) => (
+                       <div key={i} className="flex items-center gap-3 text-sm text-gray-300">
+                          <Check className="w-4 h-4 text-green-400" />
+                          <span>{file.name}</span>
+                       </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Notas Adicionales */}
+              {submittedData.generalInfo && (
+                <div className="space-y-2">
+                  <h3 className="text-xs font-medium text-blue-400 uppercase tracking-wider">Notas Adicionales</h3>
+                  <p className="text-gray-300 italic">"{submittedData.generalInfo}"</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+          
+          <CardFooter className="justify-center border-t border-white/10 pt-6 shrink-0 bg-black/20">
+            <Button 
+              onClick={() => window.location.reload()} 
+              size="lg"
+              className="bg-white text-black hover:bg-gray-200 rounded-full px-8 font-semibold"
+            >
+              Iniciar Nuevo Brief
             </Button>
           </CardFooter>
         </Card>
